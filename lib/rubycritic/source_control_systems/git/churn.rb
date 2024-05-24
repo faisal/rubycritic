@@ -57,7 +57,7 @@ module RubyCritic
         end
 
         def git_log_command(path)
-          "log --all --date=iso --follow --format='format:date:%x09%ad' --name-status #{after_clause}#{path}"
+          "log --all --date=iso --follow --format='format:date:%x09%ad' --name-status #{after_clause} -- #{path}"
         end
 
         def after_clause
