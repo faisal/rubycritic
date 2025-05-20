@@ -58,7 +58,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'minitest-around', '~> 0.5.0', '>= 0.4.0'
   spec.add_development_dependency 'mocha', '~> 2.7.1'
   spec.add_development_dependency 'ostruct'
-  spec.add_development_dependency 'rake', '~> 13.2.0', '>= 11.0.0'
+  spec.add_development_dependency 'rake', '~> 13.3.0', '>= 11.0.0'
   spec.add_development_dependency 'rdoc'
   spec.add_development_dependency 'rexml', '>= 3.2.0'
   spec.add_development_dependency 'rubocop', '>= 1.72.0', '< 2.0'

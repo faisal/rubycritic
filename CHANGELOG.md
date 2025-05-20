@@ -1,7 +1,7 @@
 # main [(unreleased)](https://github.com/whitesmith/rubycritic/compare/v4.9.2...main)
 
 * [CHANGE] Fixed feature execution on Ruby 3.5.0dev (by [@faisal][])
-* [CHANGE] Bump byebug, reek dependencies (by [@faisal][])
+* [CHANGE] Bump byebug, fakefs, rake, reek dependencies (by [@faisal][])
 * [CHANGE] Bump fakefs dependency (@by [@faisal][])]
 * [CHANGE] Drop support for Ruby 3.1.x (by [@faisal][])
 * [CHANGE] Update CI checkout action to v4 (by [@faisal][])
