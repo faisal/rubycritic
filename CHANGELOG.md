@@ -1,5 +1,6 @@
 # main [(unreleased)](https://github.com/whitesmith/rubycritic/compare/v4.9.2...main)
 
+* [CHANGE] Add changes or suppress warnings for issues found by newer rubocop (by [@faisal][])
 * [CHANGE] Fixed feature execution on Ruby 3.5.0dev (by [@faisal][])
 * [CHANGE] Bump byebug, fakefs, rake, reek dependencies (by [@faisal][])
 * [CHANGE] Bump fakefs dependency (@by [@faisal][])]
