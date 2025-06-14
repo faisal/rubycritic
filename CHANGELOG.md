@@ -2,7 +2,7 @@
 
 * [CHANGE] Add changes or suppress warnings for issues found by newer rubocop (by [@faisal][])
 * [CHANGE] Fixed feature execution on Ruby 3.5.0dev (by [@faisal][])
-* [CHANGE] Bump byebug, fakefs, rake, reek dependencies (by [@faisal][])
+* [CHANGE] Bump byebug, cucumber, fakefs, rake, reek dependencies (by [@faisal][])
 * [CHANGE] Bump fakefs dependency (@by [@faisal][])]
 * [CHANGE] Drop support for Ruby 3.1.x (by [@faisal][])
 * [CHANGE] Update CI checkout action to v4 (by [@faisal][])
