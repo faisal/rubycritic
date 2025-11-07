@@ -5,6 +5,7 @@
 * [CHORE] ...
 * [FEATURE] ...
 
+* [CHANGE] Drop support for Ruby 3.1.x and JRuby 9.4 (by [@faisal][])
 * [CHORE] Uses prism instead of parser for Ruby 3.4 and above (by [@torresga][] and [@julioalucero][])
 
 # v4.11.0 / 2025-10-15 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.10.0...v4.11.0)
