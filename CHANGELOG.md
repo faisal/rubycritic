@@ -5,6 +5,7 @@
 * [CHORE] ...
 * [FEATURE] ...
 
+* [CHORE] Sorted cops in .rubocop.yml to make it easier for maintainers to add or modify cop settings, and unified duplicate Metrics/MethodLength settings. (by [@faisal][])
 * [CHANGE] Add CI support for JRuby 10.0 (by [@faisal][])
 * [CHANGE] Bump cucumber dependency (by [@faisal][])
 * [BUGFIX] Fixed regression in compatibility with Flog 4.9.0 (by [@faisal][])
