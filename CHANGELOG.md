@@ -6,6 +6,7 @@
 * [FEATURE] ...
 
 * [CHORE] Updated README with last supported Ruby versions for the older as well as the latest releases of Rubycritic/Ruby (by [@faisal][])
+* [CHORE] Bump fakefs dependency (by [@faisal][])
 * [CHORE] In RubyCritic::Generator::Html::Line, require cgi/escape rather than cgi, as the latter is removed from Ruby 4.0 (by [@faisal][])
 * [CHORE] Run Markdown linting in CI using Ruby 4.0 (by [@faisal][])
 * [CHANGE] Drop support for Ruby 3.1.x and JRuby 9.4 (by [@faisal][])
