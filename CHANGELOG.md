@@ -5,7 +5,7 @@
 * [CHORE] ...
 * [FEATURE] ...
 
-# v4.12.0 / 2026-01-01 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.11.0...v4.12.0)
+# v4.12.0 / 2026-01-25 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.11.0...v4.12.0)
 
 * [CHANGE] Bump cucumber dependency (by [@faisal][])
 * [BUGFIX] Fixed regression in compatibility with Flog 4.9.0 (by [@faisal][])
