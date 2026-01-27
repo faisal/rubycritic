@@ -1,9 +1,11 @@
-# main [(unreleased)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...main)
+# main [(unreleased)](https://github.com/whitesmith/rubycritic/compare/v5.0.0...main)
 
 * [CHANGE] ...
 * [BUGFIX] ...
 * [CHORE] ...
 * [FEATURE] ...
+
+# v5.0.0 / 2026-01-26 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...v5.0.0)
 
 * [CHORE] Bump byebug dependency (by [@faisal][])
 * [CHORE] Bump mdl and mocha dependencies (by [@faisal][])
@@ -16,7 +18,7 @@
 * [CHANGE] Add CI support for JRuby 10.0 (by [@faisal][])
 * [CHORE] Start testing library with Ruby 4.0 (by [@etagwerker][])
 
-# v4.12.0 / 2026-01-01 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.11.0...v4.12.0)
+# v4.12.0 / 2026-01-25 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.11.0...v4.12.0)
 
 * [CHANGE] Bump cucumber dependency (by [@faisal][])
 * [BUGFIX] Fixed regression in compatibility with Flog 4.9.0 (by [@faisal][])
