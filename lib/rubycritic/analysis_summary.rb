@@ -11,9 +11,7 @@ module RubyCritic
     end
 
     def generate
-      %w[A B C D F].to_h do |rating|
-        [rating, generate_for(rating)]
-      end
+      %w[A B C D F].to_h { |rating| [rating, generate_for(rating)] }
     end
 
     private
