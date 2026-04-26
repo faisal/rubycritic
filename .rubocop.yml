@@ -17,11 +17,6 @@ Gemspec/DevelopmentDependencies:
   Exclude:
     - 'rubycritic.gemspec'
 
-Layout/BlockAlignment:
-  Enabled: false
-  Exclude:
-    - 'features/step_definitions/rake_task_steps.rb'
-
 Layout/LineLength:
   Max: 120
 
@@ -58,6 +53,7 @@ Metrics/BlockLength:
 Metrics/MethodLength:
   Exclude:
     - 'lib/rubycritic/configuration.rb'
+    - 'test/integration/integration_test_helper.rb'
 
 Naming/RescuedExceptionsVariableName:
   Exclude:
@@ -75,6 +71,13 @@ Style/Documentation:
 
 Style/HashSyntax:
   EnforcedShorthandSyntax: either
+
+Style/OneClassPerFile:
+  Exclude:
+    - 'lib/rubycritic/analysers/helpers/ast_node.rb'
+    - 'test/analysers_test_helper.rb'
+    - 'test/fakefs_helper.rb'
+    - 'test/test_helper.rb'
 
 Style/OpenStructUse:
   Exclude:
