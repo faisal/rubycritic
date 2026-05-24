@@ -5,6 +5,7 @@
 * [CHORE] ...
 * [FEATURE] ...
 
+* [CHANGE] Bump but also loosen MarkdownLint dependency (by [@faisal][])
 * [CHORE] Bump Mocha and Rake dependencies (by [@faisal][])
 * [CHANGE] Replace Aruba with direct API calls in specs (by [@faisal][])
 * [CHANGE] Replace all Cucumber features with Minitest/Spec specs (by [@faisal][])

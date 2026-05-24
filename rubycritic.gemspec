@@ -54,7 +54,7 @@ Gem::Specification.new do |spec|
   end
   spec.add_development_dependency 'diff-lcs', '~> 2.0'
   spec.add_development_dependency 'fakefs', '~> 3.2.0'
-  spec.add_development_dependency 'mdl', '~> 0.15.0', '>= 0.12.0'
+  spec.add_development_dependency 'mdl', '>= 0.12.0'
   spec.add_development_dependency 'minitest', '~> 6.0.0'
   spec.add_development_dependency 'minitest-around', '~> 0.6.0'
   spec.add_development_dependency 'minitest-mock'
