@@ -83,9 +83,21 @@ module IntegrationTestHelper
 
   def run_command(command)
     env = { 'PATH' => "#{File.join(GEM_ROOT, 'bin')}#{File::PATH_SEPARATOR}#{ENV.fetch('PATH', '')}" }
-    stdout, stderr, status = Timeout.timeout(COMMAND_TIMEOUT) do
-      Open3.capture3(env, command)
+    Open3.popen3(env, command) do |stdin, stdout, stderr, wait_thr|
+      stdin.close
+      out = err = nil
+      begin
+        Timeout.timeout(COMMAND_TIMEOUT) do
+          out = stdout.read
+          err = stderr.read
+          wait_thr.join
+        end
+      rescue Timeout::Error
+        Process.kill('KILL', wait_thr.pid)
+        wait_thr.join
+        raise
+      end
+      return CommandResult.new(out, err, wait_thr.value.exitstatus)
     end
-    CommandResult.new(stdout, stderr, status.exitstatus)
   end
 end
