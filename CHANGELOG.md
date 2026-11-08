@@ -24,6 +24,7 @@
 * [CHANGE] Replace `jquery.tablesorter` 2.0.5b in the HTML report with a small table sorter. When you come back to a column, it now sorts ascending to match the arrow; before, the order and the arrow could disagree. Shift-click multi-column sorting is gone (by [@faisal][])
 * [CHANGE] Replace the archived Google Code Prettify in the HTML report with [Rouge](https://github.com/rouge-ruby/rouge), which highlights the code when the report is generated. Adds `rouge` as a runtime dependency (by [@faisal][])
 * [BUGFIX] Smell location links in the HTML report now highlight the line of the smell. Before, they highlighted the line after it (by [@faisal][])
+* [CHANGE] Replace Highcharts 4.0.1 in the HTML report with [Chart.js](https://www.chartjs.org) 4.6.1 (MIT). Highcharts needs a paid license for commercial use, and 4.0.1 has known security advisories. The churn vs complexity chart no longer zooms (by [@faisal][])
 
 # v5.0.0 / 2026-01-26 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...v5.0.0)
 

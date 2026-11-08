@@ -38,6 +38,11 @@ describe 'HTML report assets' do
     _(references.reject { |path| files.include?(path) }).must_be_empty
   end
 
+  it 'loads Chart.js 4.6.1 for the overview charts' do
+    _(layout_scripts).must_include 'vendor/javascripts/chart.umd.min.js'
+    _(assets_dir.join('vendor/javascripts/chart.umd.min.js').read(200)).must_include 'Chart.js v4.6.1'
+  end
+
   it 'ships no asset that nothing references' do
     _(files - references).must_be_empty
   end
@@ -48,7 +53,8 @@ describe 'HTML report assets' do
     'vendor/javascripts/jquery.timeago.js' => 'Intl.RelativeTimeFormat replaces it',
     'vendor/javascripts/jquery.filtertable.min.js' => 'a small filter in application.js replaces it',
     'vendor/javascripts/jquery.tablesorter.min.js' => 'a small sorter in application.js replaces it',
-    'vendor/javascripts/prettify.js' => 'Rouge highlights the code when the report is generated'
+    'vendor/javascripts/prettify.js' => 'Rouge highlights the code when the report is generated',
+    'vendor/javascripts/highcharts.src-4.0.1.js' => 'Chart.js (MIT) replaces it; Highcharts is commercial'
   }.each do |script, reason|
     it "does not load #{script}, because #{reason}" do
       _(layout_scripts).wont_include script

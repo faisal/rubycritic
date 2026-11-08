@@ -551,6 +551,19 @@ span.metric {
   cursor: pointer;
 }
 
+/* Overview charts (Chart.js). Chart.js fills the container's height. */
+.chart-container {
+  position: relative;
+  height: 400px;
+}
+/* The score in the middle of the GPA donut. application.js sets left/top. */
+.gpa-score {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
 .obtained-score {
   font-size: 1.5em;
 }

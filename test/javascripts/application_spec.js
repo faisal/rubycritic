@@ -1,6 +1,6 @@
 'use strict';
 
-const { loadReport, highchartsStub } = require('./helpers/report_dom');
+const { loadReport } = require('./helpers/report_dom');
 
 const SIDEBAR = `
   <a class="project-nav-item overview-nav">Overview</a>
@@ -540,37 +540,123 @@ describe('application.js', () => {
   });
 
   describe('overview charts', () => {
-    let calls;
+    let charts;
+    let window;
+
+    // jsdom has no canvas, so record each chart that the page creates.
+    const chartStub = (w) => {
+      w.Chart = function Chart(canvas, config) {
+        charts.push({ canvas, config });
+      };
+    };
+    const chartIn = (id) => charts.find((c) => c.canvas.parentElement.id === id);
 
     beforeEach(async () => {
-      calls = [];
-      await loadReport({
+      charts = [];
+      window = await loadReport({
         body: OVERVIEW,
-        before: (window) => {
-          window.turbulenceData = JSON.parse(JSON.stringify(TURBULENCE));
-          window.score = 87.5;
+        before: (w) => {
+          w.turbulenceData = JSON.parse(JSON.stringify(TURBULENCE));
+          w.score = 87.5;
         },
-        stubs: { 'highcharts.src-4.0.1.js': highchartsStub(calls) },
+        stubs: { 'chart.umd.min.js': chartStub },
       });
     });
 
-    it('draws the churn vs complexity scatter chart with one color per rating', () => {
-      const scatter = calls.find((c) => c.id === 'churn-vs-complexity-graph-container');
+    describe('churn vs complexity', () => {
+      let chart;
 
-      expect(scatter.options.chart.type).toBe('scatter');
-      expect(scatter.options.series[0].data.map((p) => [p.name, p.color])).toEqual([
-        ['Foo', '#00B50E'],
-        ['Bar', '#C40009'],
-      ]);
+      beforeEach(() => {
+        chart = chartIn('churn-vs-complexity-graph-container');
+      });
+
+      it('draws a scatter chart on a canvas in its container', () => {
+        expect(chart.config.type).toBe('scatter');
+        expect(chart.canvas.tagName).toBe('CANVAS');
+        expect(chart.canvas.getAttribute('role')).toBe('img');
+        expect(chart.canvas.getAttribute('aria-label')).toBe('Churn vs complexity of each module');
+      });
+
+      it('puts each module at (churn, complexity), in the color of its rating', () => {
+        const dataset = chart.config.data.datasets[0];
+
+        expect(dataset.data.map((p) => [p.name, p.x, p.y])).toEqual([['Foo', 3, 10], ['Bar', 1, 40]]);
+        expect(dataset.backgroundColor).toEqual(['#00B50E', '#C40009']);
+      });
+
+      it('has the title "Churn vs Complexity", axis titles, axes from 0 and no legend', () => {
+        const { options } = chart.config;
+
+        expect(options.plugins.title.text).toBe('Churn vs Complexity');
+        expect(options.plugins.legend.display).toBeFalse();
+        expect([options.scales.x.title.text, options.scales.x.min]).toEqual(['Churn', 0]);
+        expect([options.scales.y.title.text, options.scales.y.min]).toEqual(['Complexity', 0]);
+      });
+
+      it('does not cut off points at the edges of the chart', () => {
+        const { options, data } = chart.config;
+
+        expect(data.datasets[0].clip).toBeFalse();
+        expect([options.scales.x.grace, options.scales.y.grace]).toEqual(['5%', '5%']);
+      });
+
+      it('names the module and its numbers in the tooltip', () => {
+        const { callbacks } = chart.config.options.plugins.tooltip;
+        const context = { raw: TURBULENCE[0], parsed: { x: 3, y: 10 } };
+
+        expect(callbacks.title([context])).toBe('Foo');
+        expect(callbacks.label(context)).toBe('Committed 3 times, with Flog score of 10');
+      });
     });
 
-    it('draws the GPA donut chart with the percentage of modules per rating', () => {
-      const donut = calls.find((c) => c.id === 'gpa-chart');
+    describe('GPA donut', () => {
+      let chart;
 
-      expect(donut.options.chart.type).toBe('pie');
-      expect(donut.options.series[0].data.map((d) => [d.name, d.y])).toEqual([
-        ['A', 50], ['B', 0], ['C', 0], ['D', 0], ['F', 50],
-      ]);
+      beforeEach(() => {
+        chart = chartIn('gpa-chart');
+      });
+
+      it('draws a doughnut chart with a legend', () => {
+        expect(chart.config.type).toBe('doughnut');
+        expect(chart.config.options.cutout).toBe('65%');
+        expect(chart.config.options.plugins.legend.display).toBeTrue();
+      });
+
+      it('shows the percentage of modules per rating, in the rating colors', () => {
+        const dataset = chart.config.data.datasets[0];
+
+        expect(chart.config.data.labels).toEqual(['A', 'B', 'C', 'D', 'F']);
+        expect(dataset.data).toEqual([50, 0, 0, 0, 50]);
+        expect(dataset.backgroundColor).toEqual(['#00B50E', '#53D700', '#FDF400', '#FF6C00', '#C40009']);
+      });
+
+      it('shows "<rating>: <percent> %" in the tooltip', () => {
+        expect(chart.config.options.plugins.tooltip.callbacks.label({ label: 'A', raw: 50 })).toBe('A: 50 %');
+      });
+
+      it('shows the score in the middle of the donut', () => {
+        const container = window.document.getElementById('gpa-chart');
+
+        expect(container.querySelector('.obtained-score').textContent).toBe('87.50');
+        expect(container.querySelector('.total-score').textContent).toBe('/100');
+        expect(chart.canvas.getAttribute('aria-label')).toBe('Share of modules by rating. Score: 87.50 of 100');
+      });
+
+      it('keeps the score centered on the donut when the chart is drawn', () => {
+        const label = window.document.querySelector('#gpa-chart .obtained-score').parentElement;
+        const plugin = chart.config.plugins.find((p) => typeof p.afterDraw === 'function');
+
+        plugin.afterDraw({ chartArea: { left: 10, right: 210, top: 20, bottom: 120 } });
+
+        expect([label.style.left, label.style.top]).toEqual(['110px', '70px']);
+      });
+    });
+
+    it('draws no chart on a page without chart containers', async () => {
+      charts = [];
+      await loadReport({ body: CODE_FILE, page: 'lib/foo.html', stubs: { 'chart.umd.min.js': chartStub } });
+
+      expect(charts).toEqual([]);
     });
   });
 });

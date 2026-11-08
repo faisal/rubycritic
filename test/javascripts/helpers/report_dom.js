@@ -69,14 +69,4 @@ function loadReport({ body = '', page = 'overview.html', stubs = {}, before } = 
   });
 }
 
-// Replaces Highcharts with a recorder, because jsdom has no SVG layout.
-function highchartsStub(calls) {
-  return (window) => {
-    window.jQuery.fn.highcharts = function highcharts(options) {
-      calls.push({ id: this.attr('id'), options });
-      return this;
-    };
-  };
-}
-
-module.exports = { loadReport, layoutScripts, layoutStylesheets, highchartsStub, ASSETS_DIR };
+module.exports = { loadReport, layoutScripts, layoutStylesheets, ASSETS_DIR };
