@@ -21,6 +21,7 @@
 * [CHANGE] Replace `jquery.scrollTo` in the HTML report with `Element#scrollIntoView` and CSS `scroll-margin-top` (by [@faisal][])
 * [CHANGE] Replace `jquery.timeago` in the HTML report with `Intl.RelativeTimeFormat`. Relative times now read "1 year ago" instead of "about a year ago", and round down. The `<time datetime>` attribute is now ISO 8601 (by [@faisal][])
 * [CHANGE] Replace the archived `jQuery.FilterTable` plugin in the HTML report with a small table filter. Search text with quotes, such as `call("x")`, now matches; before, it hid every row (by [@faisal][])
+* [CHANGE] Replace `jquery.tablesorter` 2.0.5b in the HTML report with a small table sorter. When you come back to a column, it now sorts ascending to match the arrow; before, the order and the arrow could disagree. Shift-click multi-column sorting is gone (by [@faisal][])
 
 # v5.0.0 / 2026-01-26 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...v5.0.0)
 

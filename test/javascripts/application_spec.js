@@ -286,6 +286,129 @@ describe('application.js', () => {
     });
   });
 
+  describe('table sorting', () => {
+    // Same columns as the index templates. Names sit in a nav-pills link with
+    // whitespace around it, as in code_index.html.erb.
+    const table = (id, headers, rows) => `
+      <table id="${id}" class="table sortable-table tablesorter">
+        <thead><tr>${headers.map((h) => `<th class="table-header">${h}<span class="sort-type"></span></th>`).join('')}</tr></thead>
+        <tbody>${rows.map(([name, ...cells]) => `<tr data-name="${name}">${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>`;
+    const link = (name) => `
+                <ul class="nav nav-pills"><li><a href="#">${name}</a></li></ul>
+              `;
+    // name, rating, churn, complexity
+    const CODE = [['Alpha', 'A', '10', '5.5'], ['beta', 'F', '9', '12.25'], ['Gamma', 'C', '100', '3'], ['Delta', 'F', '10', '7']];
+    const codeTable = table('codeTable', ['Rating', 'Name', 'Churn', 'Complexity', 'Duplication', 'Smells'],
+      CODE.map(([name, rating, churn, complexity]) => [name, rating, link(name), churn, complexity, '0', '1']));
+    const smellsTable = table('smellsTable', ['Smell', 'Locations', 'Status'],
+      [['Mu', 'UtilityFunction', 'Foo#bar', 'new'], ['Nu', 'DuplicateCode', 'Foo', 'old'], ['Xi', 'FeatureEnvy', 'Bar', 'new']]);
+    const coverageTable = table('coverageTable', ['Rating', 'Name', 'Coverage'],
+      [['Zeta', 'B', link('Zeta'), '9.50%'], ['Eta', 'B', link('Eta'), '100.00%'], ['Theta', 'A', link('Theta'), '10.00%']]);
+
+    const order = (window, id) => [...window.document.querySelectorAll(`#${id} tbody tr`)].map((row) => row.dataset.name);
+    const header = (window, id, text) => [...window.document.querySelectorAll(`#${id} th`)].find((th) => th.textContent === text);
+    // Waits a little after the click, because a sorter can sort in a timer.
+    const click = (window, id, text) => {
+      header(window, id, text).click();
+      return new Promise((resolve) => window.setTimeout(resolve, 10));
+    };
+    const indicator = (window, id, text) => {
+      const th = header(window, id, text);
+      return [th.classList.contains('active'), th.querySelector('.sort-type').className];
+    };
+
+    describe('when the page opens', () => {
+      it('sorts the code table by rating, worst first', async () => {
+        const window = await loadReport({ body: codeTable, page: 'code_index.html' });
+
+        expect(order(window, 'codeTable')).toEqual(['beta', 'Delta', 'Gamma', 'Alpha']);
+      });
+
+      it('sorts the smells table by smell name, A to Z', async () => {
+        const window = await loadReport({ body: smellsTable, page: 'smells_index.html' });
+
+        expect(order(window, 'smellsTable')).toEqual(['Nu', 'Xi', 'Mu']);
+      });
+
+      it('sorts the coverage table by rating, worst first', async () => {
+        const window = await loadReport({ body: coverageTable, page: 'simple_cov_index.html' });
+
+        expect(order(window, 'coverageTable')).toEqual(['Zeta', 'Eta', 'Theta']);
+      });
+    });
+
+    describe('when a header is clicked', () => {
+      let window;
+
+      beforeEach(async () => {
+        window = await loadReport({ body: codeTable, page: 'code_index.html' });
+      });
+
+      it('sorts by that column, then reverses with each click', async () => {
+        await click(window, 'codeTable', 'Name');
+        expect(order(window, 'codeTable')).toEqual(['Alpha', 'beta', 'Delta', 'Gamma']);
+
+        await click(window, 'codeTable', 'Name');
+        expect(order(window, 'codeTable')).toEqual(['Gamma', 'Delta', 'beta', 'Alpha']);
+
+        await click(window, 'codeTable', 'Name');
+        expect(order(window, 'codeTable')).toEqual(['Alpha', 'beta', 'Delta', 'Gamma']);
+      });
+
+      it('sorts numbers as numbers', async () => {
+        await click(window, 'codeTable', 'Complexity');
+
+        expect(order(window, 'codeTable')).toEqual(['Gamma', 'Alpha', 'Delta', 'beta']);
+      });
+
+      it('keeps the original row order for equal values, in both directions', async () => {
+        await click(window, 'codeTable', 'Churn');
+        expect(order(window, 'codeTable')).toEqual(['beta', 'Alpha', 'Delta', 'Gamma']);
+
+        await click(window, 'codeTable', 'Churn');
+        expect(order(window, 'codeTable')).toEqual(['Gamma', 'Alpha', 'Delta', 'beta']);
+      });
+
+      it('shows an up arrow, then a down arrow, on the sorted header only', async () => {
+        await click(window, 'codeTable', 'Name');
+        expect(indicator(window, 'codeTable', 'Name')).toEqual([true, 'sort-type table-header-asc']);
+
+        await click(window, 'codeTable', 'Name');
+        expect(indicator(window, 'codeTable', 'Name')).toEqual([true, 'sort-type table-header-desc']);
+
+        await click(window, 'codeTable', 'Churn');
+        expect(indicator(window, 'codeTable', 'Name')).toEqual([false, 'sort-type']);
+        expect(indicator(window, 'codeTable', 'Churn')).toEqual([true, 'sort-type table-header-asc']);
+      });
+
+      it('starts A to Z again when you come back to a column, to match the arrow', async () => {
+        await click(window, 'codeTable', 'Name');
+        await click(window, 'codeTable', 'Churn');
+        await click(window, 'codeTable', 'Name');
+
+        expect(order(window, 'codeTable')).toEqual(['Alpha', 'beta', 'Delta', 'Gamma']);
+        expect(indicator(window, 'codeTable', 'Name')).toEqual([true, 'sort-type table-header-asc']);
+      });
+
+      it('keeps filtered-out rows hidden', async () => {
+        window.document.querySelector('tr[data-name="Gamma"]').hidden = true;
+
+        await click(window, 'codeTable', 'Name');
+
+        expect(window.document.querySelector('tr[data-name="Gamma"]').hidden).toBeTrue();
+      });
+    });
+
+    it('sorts percentages as numbers', async () => {
+      const window = await loadReport({ body: coverageTable, page: 'simple_cov_index.html' });
+
+      await click(window, 'coverageTable', 'Coverage');
+
+      expect(order(window, 'coverageTable')).toEqual(['Zeta', 'Theta', 'Eta']);
+    });
+  });
+
   describe('table filters', () => {
     const NAMES = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'];
 
