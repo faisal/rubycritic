@@ -12,6 +12,26 @@ module RubyCritic
       time
     end
 
+    ICONS_DIR = File.expand_path('templates/icons', __dir__)
+
+    # The SVG files in templates/icons come unchanged from Bootstrap Icons
+    # (MIT, see templates/icons/LICENSE). Each icon becomes one line of SVG.
+    ICONS = Dir[File.join(ICONS_DIR, '*.svg')].to_h do |path|
+      svg = File.read(path)
+      name = File.basename(path, '.svg')
+      view_box = svg[/viewBox="([^"]+)"/, 1]
+      paths = svg[%r{<svg[^>]*>(.*)</svg>}m, 1].gsub(/\s+/, ' ').strip
+      attributes = %(class="icon icon-#{name}" viewBox="#{view_box}" fill="currentColor")
+      [name, %(<svg #{attributes} aria-hidden="true" focusable="false">#{paths}</svg>)]
+    end.freeze
+
+    # Inline SVG icon. Screen readers skip it, so give the link or button a
+    # text or an aria-label.
+    # :reek:UtilityFunction
+    def icon(name)
+      ICONS.fetch(name.to_s) { raise ArgumentError, "Unknown icon: #{name}" }
+    end
+
     # A view helper uses no generator state.
     # :reek:UtilityFunction
     def timeago_tag(time)

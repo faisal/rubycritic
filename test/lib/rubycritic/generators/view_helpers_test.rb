@@ -29,6 +29,23 @@ describe RubyCritic::ViewHelpers do
       end
     end
 
+    describe '#icon' do
+      %w[bars dashboard code warning umbrella arrow-up arrow-down].each do |name|
+        it "returns the #{name} icon as one line of inline SVG that screen readers skip" do
+          svg = generator.icon(name)
+
+          _(svg).must_match(/\A<svg class="icon icon-#{name}" /)
+          _(svg).must_include 'viewBox="0 0 16 16" fill="currentColor" aria-hidden="true" focusable="false"><path '
+          _(svg).must_match(%r{</svg>\z})
+          _(svg).wont_include "\n"
+        end
+      end
+
+      it 'raises an error for an unknown icon' do
+        _ { generator.icon('no-such-icon') }.must_raise ArgumentError
+      end
+    end
+
     describe '#timeago_tag' do
       context 'with a git or Perforce commit date' do
         it 'gives the time element an ISO 8601 datetime and keeps the original text' do

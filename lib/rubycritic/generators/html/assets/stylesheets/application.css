@@ -14,6 +14,14 @@
 /*Layout Styles*/
 body { overflow-x: hidden; }
 
+/* Inline SVG icons (ViewHelpers#icon). They take the size and color of the text. */
+.icon {
+  display: inline-block;
+  width: 1em;
+  height: 1em;
+  vertical-align: -0.125em;
+}
+
 /* Smooth scroll for smell location links (#L12). Code lines stop below the
    fixed header (85px max height plus its shadow). */
 html { scroll-behavior: smooth; }
@@ -224,7 +232,7 @@ header {
   background: none;
 }
 
-.sidebar-nav .fa {
+.sidebar-nav .icon {
   font-size: 24px;
 }
 
@@ -256,7 +264,8 @@ header {
   }
 }
 .sidebar-nav li a:hover {color:#9B111D;}
-.sidebar-nav li a i,.sidebar-nav li a img {font-size:18px;display:block;margin:0 auto;}
+.sidebar-nav li a .icon {display:block;margin:0 auto;}
+.sidebar-nav li a img {font-size:18px;display:block;margin:0 auto;}
 /*End of Layout Styles*/
 
 .fadeIn {-webkit-animation: fadein 2s; /* Safari, Chrome and Opera > 12.1 */
@@ -524,7 +533,7 @@ ol.errors {
 }
 .smells .heading { background-color: #F8AE60; }
 .smells .description { background-color: #FBE5BE; }
-.smells .fa-warning { color: #f57e00; }
+.smells .icon-warning { color: #f57e00; }
 .smells span { margin-left: 20px; }
 .smells a { color: white; }
 .smells a:hover { color: #337ab7; }

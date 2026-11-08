@@ -26,13 +26,13 @@
                   <% if Config.build_mode? %>
                     <% master_analysed_module = Config.base_branch_collection.find(analysed_module.pathname) %>
                     <% if !master_analysed_module %>
-                      <span class="empty-span glyphicon"></span>
+                      <span class="empty-span icon"></span>
                     <% elsif master_analysed_module.cost > analysed_module.cost %>
-                      <span class="glyphicon glyphicon-arrow-up green-color"></span>
+                      <span class="green-color"><%= icon('arrow-up') %></span>
                     <% elsif master_analysed_module.cost < analysed_module.cost %>
-                      <span class="glyphicon glyphicon-arrow-down red-color"></span>
+                      <span class="red-color"><%= icon('arrow-down') %></span>
                     <% else %>
-                      <span class="empty-span glyphicon"></span>
+                      <span class="empty-span icon"></span>
                     <% end %>
                   <% end %>
                   <div class="rating <%= analysed_module.rating.to_s.downcase %>"><%= analysed_module.rating %></div>

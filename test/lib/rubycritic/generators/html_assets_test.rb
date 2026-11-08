@@ -43,6 +43,21 @@ describe 'HTML report assets' do
     _(assets_dir.join('vendor/javascripts/chart.umd.min.js').read(200)).must_include 'Chart.js v4.6.1'
   end
 
+  it 'uses no Font Awesome or glyphicon classes in the templates' do
+    offenders = Dir[templates_dir.join('**/*.erb')].select do |template|
+      File.read(template).match?(/class="[^"]*\b(fa|fa-[\w-]+|glyphicon[\w-]*)\b/)
+    end
+
+    _(offenders.map { |path| File.basename(path) }).must_be_empty
+  end
+
+  it 'ships the Bootstrap Icons license with the icons' do
+    license = templates_dir.join('icons/LICENSE').read
+
+    _(license).must_include 'The MIT License'
+    _(license).must_include 'The Bootstrap Authors'
+  end
+
   it 'ships no asset that nothing references' do
     _(files - references).must_be_empty
   end
@@ -63,7 +78,8 @@ describe 'HTML report assets' do
   end
 
   {
-    'vendor/stylesheets/prettify.custom_theme.css' => 'application.css styles the Rouge token classes'
+    'vendor/stylesheets/prettify.custom_theme.css' => 'application.css styles the Rouge token classes',
+    'vendor/stylesheets/font-awesome.min.css' => 'the templates use inline SVG icons'
   }.each do |stylesheet, reason|
     it "does not load #{stylesheet}, because #{reason}" do
       _(layout_stylesheets).wont_include stylesheet

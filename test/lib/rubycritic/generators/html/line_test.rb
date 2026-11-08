@@ -28,6 +28,10 @@ describe RubyCritic::Generator::Html::Line do
       _(rendered).must_match(%r{\A<li id="L3">#{Regexp.escape(html)}<ol class="nocode errors smells">.*</ol></li>\z}m)
     end
 
+    it 'marks the smell with the warning icon' do
+      _(rendered).must_include '<svg class="icon icon-warning"'
+    end
+
     it 'names the smell' do
       _(rendered).must_include 'UtilityFunction'
       _(rendered).must_include "Foo#foo doesn't depend on instance state"
