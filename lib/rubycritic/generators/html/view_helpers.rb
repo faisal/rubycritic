@@ -1,9 +1,21 @@
 # frozen_string_literal: true
 
+require 'time'
+
 module RubyCritic
   module ViewHelpers
+    # The source control systems give dates such as "2018-10-31 18:01:36 -0300".
+    # The datetime attribute gets ISO 8601, which browsers parse the same way.
+    def self.datetime_attribute(time)
+      Time.parse(time.to_s).iso8601
+    rescue ArgumentError
+      time
+    end
+
+    # A view helper uses no generator state.
+    # :reek:UtilityFunction
     def timeago_tag(time)
-      "<time class='js-timeago' datetime='#{time}'>#{time}</time>"
+      "<time class='js-timeago' datetime='#{ViewHelpers.datetime_attribute(time)}'>#{time}</time>"
     end
 
     def asset_path(file)

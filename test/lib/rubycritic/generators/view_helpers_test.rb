@@ -28,6 +28,29 @@ describe RubyCritic::ViewHelpers do
           .must_equal 'assets/stylesheets/application.css'
       end
     end
+
+    describe '#timeago_tag' do
+      context 'with a git or Perforce commit date' do
+        it 'gives the time element an ISO 8601 datetime and keeps the original text' do
+          _(generator.timeago_tag('2018-10-31 18:01:36 -0300'))
+            .must_equal "<time class='js-timeago' datetime='2018-10-31T18:01:36-03:00'>2018-10-31 18:01:36 -0300</time>"
+        end
+      end
+
+      context 'with a Mercurial commit date, which has no seconds' do
+        it 'gives the time element an ISO 8601 datetime' do
+          _(generator.timeago_tag('2018-10-31 18:01 -0300'))
+            .must_include "datetime='2018-10-31T18:01:00-03:00'"
+        end
+      end
+
+      context 'with a date it cannot parse' do
+        it 'keeps the original text as the datetime' do
+          _(generator.timeago_tag('not a date'))
+            .must_equal "<time class='js-timeago' datetime='not a date'>not a date</time>"
+        end
+      end
+    end
   end
 
   context 'when the file is n directories deep' do

@@ -205,14 +205,84 @@ describe('application.js', () => {
   });
 
   describe('relative timestamps', () => {
-    it('shows "Updated" times as a relative time', async () => {
-      const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString();
+    const NOW = Date.parse('2026-11-06T12:00:00Z');
+    const SECOND = 1000;
+    const MINUTE = 60 * SECOND;
+    const HOUR = 60 * MINUTE;
+    const DAY = 24 * HOUR;
+    let intervals;
+
+    // Fixes the page clock at NOW and records setInterval calls.
+    const loadTimestamp = (datetime, text = datetime) => loadReport({
+      body: `<span>Updated <time class="js-timeago" datetime="${datetime}">${text}</time></span>`,
+      page: 'lib/foo.html',
+      before: (w) => {
+        w.Date.now = () => NOW;
+        w.setInterval = (callback, delay) => intervals.push({ callback, delay });
+      },
+    });
+    const iso = (ms) => new Date(ms).toISOString();
+
+    beforeEach(() => {
+      intervals = [];
+    });
+
+    [
+      [30 * SECOND, '30 seconds ago'],
+      [5 * MINUTE, '5 minutes ago'],
+      [3 * HOUR, '3 hours ago'],
+      [1 * DAY, '1 day ago'],
+      [3 * DAY, '3 days ago'],
+      [45 * DAY, '1 month ago'],
+      [400 * DAY, '1 year ago'],
+      [-2 * HOUR, 'in 2 hours'],
+    ].forEach(([age, expected]) => {
+      it(`shows "${expected}" for that age`, async () => {
+        const window = await loadTimestamp(iso(NOW - age));
+
+        expect(window.document.querySelector('time').textContent).toBe(expected);
+      });
+    });
+
+    it('reads the ISO 8601 datetime that the Ruby helper writes', async () => {
+      const window = await loadTimestamp('2018-10-31T18:01:36-03:00', '2018-10-31 18:01:36 -0300');
+
+      expect(window.document.querySelector('time').textContent).toBe('8 years ago');
+    });
+
+    it('keeps the absolute time as the title', async () => {
+      const window = await loadTimestamp('2018-10-31T18:01:36-03:00', '2018-10-31 18:01:36 -0300');
+
+      expect(window.document.querySelector('time').title).toBe('2018-10-31 18:01:36 -0300');
+    });
+
+    it('uses English, like the rest of the report', async () => {
       const window = await loadReport({
-        body: `<time class="js-timeago" datetime="${threeDaysAgo}">${threeDaysAgo}</time>`,
+        body: `<time class="js-timeago" datetime="${iso(NOW - 3 * DAY)}"></time>`,
         page: 'lib/foo.html',
+        before: (w) => {
+          w.Date.now = () => NOW;
+          Object.defineProperty(w.navigator, 'language', { value: 'de-DE' });
+        },
       });
 
       expect(window.document.querySelector('time').textContent).toBe('3 days ago');
+    });
+
+    it('leaves the text unchanged when the datetime is not a date', async () => {
+      const window = await loadTimestamp('not a date');
+
+      expect(window.document.querySelector('time').textContent).toBe('not a date');
+    });
+
+    it('updates the text every minute', async () => {
+      const window = await loadTimestamp(iso(NOW - 59 * MINUTE));
+      const refresh = intervals.find((i) => i.delay === MINUTE);
+
+      expect(refresh).withContext('a 60 second interval').toBeDefined();
+      window.Date.now = () => NOW + 2 * MINUTE;
+      refresh.callback();
+      expect(window.document.querySelector('time').textContent).toBe('1 hour ago');
     });
   });
 

@@ -45,7 +45,8 @@ describe 'HTML report assets' do
 
   {
     'vendor/javascripts/bootstrap.min.js' => 'the report uses none of its plugins',
-    'vendor/javascripts/jquery.scrollTo.min.js' => 'Element#scrollIntoView replaces it'
+    'vendor/javascripts/jquery.scrollTo.min.js' => 'Element#scrollIntoView replaces it',
+    'vendor/javascripts/jquery.timeago.js' => 'Intl.RelativeTimeFormat replaces it'
   }.each do |script, reason|
     it "does not load #{script}, because #{reason}" do
       _(layout_scripts).wont_include script

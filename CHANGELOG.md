@@ -19,6 +19,7 @@
 * [CHORE] Stop shipping unused HTML report assets: Bootstrap 3 JavaScript (no plugin was in use), the unminified `jquery.tablesorter.js`, `prettify.css`, and `FontAwesome.otf` (by [@faisal][])
 * [BUGFIX] Make the HTML report's mobile menu button show and hide the sidebar. It had no click handler (by [@faisal][])
 * [CHANGE] Replace `jquery.scrollTo` in the HTML report with `Element#scrollIntoView` and CSS `scroll-margin-top` (by [@faisal][])
+* [CHANGE] Replace `jquery.timeago` in the HTML report with `Intl.RelativeTimeFormat`. Relative times now read "1 year ago" instead of "about a year ago", and round down. The `<time datetime>` attribute is now ISO 8601 (by [@faisal][])
 
 # v5.0.0 / 2026-01-26 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...v5.0.0)
 
