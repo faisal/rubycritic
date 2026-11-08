@@ -286,6 +286,117 @@ describe('application.js', () => {
     });
   });
 
+  describe('table filters', () => {
+    const NAMES = ['Alpha', 'Beta', 'Gamma', 'Delta', 'Epsilon', 'Zeta', 'Eta', 'Theta'];
+
+    // Same columns as code_index.html.erb, smells_index.html.erb and
+    // simple_cov_index.html.erb. Each row has data-name for the assertions.
+    const table = (id, headers, rows) => `
+      <table id="${id}" class="table">
+        <thead><tr>${headers.map((h) => `<th class="table-header">${h}</th>`).join('')}</tr></thead>
+        <tbody>${rows.map(([name, ...cells]) => `<tr data-name="${name.replace(/"/g, '&quot;')}">${cells.map((c) => `<td>${c}</td>`).join('')}</tr>`).join('')}</tbody>
+      </table>`;
+    const codeRows = (names) => names.map((name, i) => [name, 'A', name, i === 0 ? '42' : '1', '3', '0', '2']);
+    const codeTable = (names = NAMES) => table('codeTable', ['Rating', 'Name', 'Churn', 'Complexity', 'Duplication', 'Smells'], codeRows(names));
+    const smellsTable = () => table('smellsTable', ['Smell', 'Locations', 'Status'],
+      NAMES.map((name, i) => [name, `${name}Smell`, `${name}#call`, i === 0 ? 'new' : 'old']));
+    const coverageTable = () => table('coverageTable', ['Rating', 'Name', 'Coverage'],
+      NAMES.map((name, i) => [name, i === 0 ? 'Zeta' : 'B', name, '50.00%']));
+
+    const visibleNames = (window, id) => [...window.document.querySelectorAll(`#${id} tbody tr`)]
+      .filter((row) => !row.hidden && row.style.display !== 'none')
+      .map((row) => row.dataset.name)
+      .sort();
+    const type = (window, id, text) => {
+      const input = window.document.getElementById(id).previousElementSibling.querySelector('input');
+      input.value = text;
+      input.dispatchEvent(new window.Event('input', { bubbles: true }));
+    };
+
+    [
+      ['codeTable', codeTable, 'Filter by Name'],
+      ['smellsTable', smellsTable, 'Filter by Smell or Location'],
+      ['coverageTable', coverageTable, 'Filter by Smell or Location'],
+    ].forEach(([id, fixture, placeholder]) => {
+      it(`puts a "${placeholder}" search box before #${id}`, async () => {
+        const window = await loadReport({ body: fixture(), page: 'code_index.html' });
+        const container = window.document.getElementById(id).previousElementSibling;
+
+        expect(container.tagName).toBe('P');
+        expect(container.className).toBe('filter-table');
+        expect(container.textContent.trim()).toBe('Filter:');
+        expect(container.querySelector('input').type).toBe('search');
+        expect(container.querySelector('input').placeholder).toBe(placeholder);
+      });
+    });
+
+    it('adds no search box to a table with fewer than 8 rows', async () => {
+      const window = await loadReport({ body: codeTable(NAMES.slice(0, 7)), page: 'code_index.html' });
+
+      expect(window.document.querySelector('.filter-table')).toBeNull();
+    });
+
+    it('shows only the rows that contain the text, ignoring case', async () => {
+      const window = await loadReport({ body: codeTable(), page: 'code_index.html' });
+
+      type(window, 'codeTable', 'eTa');
+
+      expect(visibleNames(window, 'codeTable')).toEqual(['Beta', 'Eta', 'Theta', 'Zeta']);
+    });
+
+    it('does not match text in the ignored columns', async () => {
+      const window = await loadReport({ body: codeTable(), page: 'code_index.html' });
+
+      type(window, 'codeTable', '42'); // only in the Churn column, which is ignored
+
+      expect(visibleNames(window, 'codeTable')).toEqual([]);
+    });
+
+    it('ignores the Status column of the smells table', async () => {
+      const window = await loadReport({ body: smellsTable(), page: 'smells_index.html' });
+
+      type(window, 'smellsTable', 'new');
+
+      expect(visibleNames(window, 'smellsTable')).toEqual([]);
+    });
+
+    it('ignores the Rating column of the coverage table', async () => {
+      const window = await loadReport({ body: coverageTable(), page: 'simple_cov_index.html' });
+
+      type(window, 'coverageTable', 'zeta');
+
+      expect(visibleNames(window, 'coverageTable')).toEqual(['Zeta']);
+    });
+
+    it('shows all rows again when the text is cleared', async () => {
+      const window = await loadReport({ body: codeTable(), page: 'code_index.html' });
+
+      type(window, 'codeTable', 'alpha');
+      type(window, 'codeTable', '');
+
+      expect(visibleNames(window, 'codeTable')).toEqual([...NAMES].sort());
+    });
+
+    it('matches quotes and parentheses as plain text', async () => {
+      const names = [...NAMES.slice(0, 7), 'call("x")'];
+      const window = await loadReport({ body: codeTable(names), page: 'code_index.html' });
+
+      type(window, 'codeTable', 'call("x")');
+
+      expect(visibleNames(window, 'codeTable')).toEqual(['call("x")']);
+    });
+
+    it('does not let the Enter key submit anything', async () => {
+      const window = await loadReport({ body: codeTable(), page: 'code_index.html' });
+      const input = window.document.querySelector('.filter-table input');
+      const enter = new window.KeyboardEvent('keydown', { key: 'Enter', keyCode: 13, bubbles: true, cancelable: true });
+
+      input.dispatchEvent(enter);
+
+      expect(enter.defaultPrevented).toBeTrue();
+    });
+  });
+
   describe('overview charts', () => {
     let calls;
 
