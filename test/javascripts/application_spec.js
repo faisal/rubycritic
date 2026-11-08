@@ -15,7 +15,9 @@ const CODE_FILE = `
     <li class="active"><a href="#" id="toggle-smells">1 smell</a></li>
   </ul>
   <code class="prettyprint linenums lang-ruby file-code js-file-code">class Foo
-<ol class="nocode errors smells"><li><div class="description">Smell</div></li></ol>  def bar; end
+<ol class="nocode errors smells"><li><div class="description">Smell
+<a href="foo.html#L2" class="js-smell-location">0</a>
+<a href="bar.html#L2" class="js-smell-location">1</a></div></li></ol>  def bar; end
 end
 </code>`;
 
@@ -114,6 +116,91 @@ describe('application.js', () => {
       expect(window.document.querySelector('.smells').style.display).not.toBe('none');
       expect(window.document.getElementById('toggle-smells').parentElement.classList.contains('active')).toBeTrue();
       expect(window.document.getElementById('toggle-code').parentElement.classList.contains('active')).toBeFalse();
+    });
+  });
+
+  describe('smell location links', () => {
+    let window;
+    let scrolls;
+
+    // jsdom has no scrollIntoView, so record the calls.
+    const recordScrolls = (w) => {
+      w.Element.prototype.scrollIntoView = function scrollIntoView(options) {
+        scrolls.push({ id: this.id, options });
+      };
+    };
+    const line = (id) => window.document.getElementById(id);
+    const highlighted = () => [...window.document.querySelectorAll('.js-file-code li.highlight')].map((li) => li.id);
+    const clickLink = (href, init = {}) => {
+      const click = new window.MouseEvent('click', { bubbles: true, cancelable: true, ...init });
+      window.document.querySelector(`a[href="${href}"]`).dispatchEvent(click);
+      return click;
+    };
+
+    beforeEach(async () => {
+      scrolls = [];
+      window = await loadReport({ body: CODE_FILE, page: 'lib/foo.html', before: recordScrolls });
+      scrolls = [];
+    });
+
+    it('smoothly scrolls to and highlights a line on the same page', () => {
+      const click = clickLink('foo.html#L2');
+
+      expect(scrolls).toEqual([{ id: 'L2', options: { behavior: 'smooth', block: 'start' } }]);
+      expect(highlighted()).toEqual(['L2']);
+      expect(window.location.hash).toBe('#L2');
+      expect(click.defaultPrevented).toBeTrue();
+    });
+
+    it('moves the highlight when another line is chosen', () => {
+      line('L0').classList.add('highlight');
+
+      clickLink('foo.html#L2');
+
+      expect(highlighted()).toEqual(['L2']);
+    });
+
+    it('lets the browser handle a ctrl-click', () => {
+      const click = clickLink('foo.html#L2', { ctrlKey: true });
+
+      expect(scrolls).toEqual([]);
+      expect(highlighted()).toEqual([]);
+      expect(click.defaultPrevented).toBeFalse();
+    });
+
+    it('lets the browser follow a link to another page', () => {
+      const click = clickLink('bar.html#L2');
+
+      expect(scrolls).toEqual([]);
+      expect(click.defaultPrevented).toBeFalse();
+    });
+
+    it('keeps code lines clear of the fixed header when scrolled to', () => {
+      expect(window.getComputedStyle(line('L2')).scrollMarginTop).toBe('87px');
+    });
+  });
+
+  describe('opening a code file at a line', () => {
+    it('scrolls to and highlights the line in the URL fragment', async () => {
+      const scrolls = [];
+      const window = await loadReport({
+        body: CODE_FILE,
+        page: 'lib/foo.html#L1',
+        before: (w) => {
+          w.Element.prototype.scrollIntoView = function scrollIntoView(options) {
+            scrolls.push({ id: this.id, options });
+          };
+        },
+      });
+
+      expect(scrolls).toEqual([{ id: 'L1', options: { behavior: 'smooth', block: 'start' } }]);
+      expect([...window.document.querySelectorAll('li.highlight')].map((li) => li.id)).toEqual(['L1']);
+    });
+
+    it('does nothing when the URL has no fragment', async () => {
+      const window = await loadReport({ body: CODE_FILE, page: 'lib/foo.html' });
+
+      expect(window.document.querySelectorAll('.highlight').length).toBe(0);
     });
   });
 

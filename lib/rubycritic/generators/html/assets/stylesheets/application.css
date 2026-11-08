@@ -14,6 +14,11 @@
 /*Layout Styles*/
 body { overflow-x: hidden; }
 
+/* Smooth scroll for smell location links (#L12). Code lines stop below the
+   fixed header (85px max height plus its shadow). */
+html { scroll-behavior: smooth; }
+.file-code ol.linenums > li { scroll-margin-top: 87px; }
+
 header {
   max-height: 85px;
   background: #fff!important;

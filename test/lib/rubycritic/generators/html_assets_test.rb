@@ -43,7 +43,12 @@ describe 'HTML report assets' do
     _(files - references).must_be_empty
   end
 
-  it 'does not load Bootstrap JavaScript, because the report uses none of its plugins' do
-    _(layout_scripts).wont_include 'vendor/javascripts/bootstrap.min.js'
+  {
+    'vendor/javascripts/bootstrap.min.js' => 'the report uses none of its plugins',
+    'vendor/javascripts/jquery.scrollTo.min.js' => 'Element#scrollIntoView replaces it'
+  }.each do |script, reason|
+    it "does not load #{script}, because #{reason}" do
+      _(layout_scripts).wont_include script
+    end
   end
 end

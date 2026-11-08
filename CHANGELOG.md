@@ -18,6 +18,7 @@
 * [CHORE] Add Jasmine + jsdom specs for the HTML report JavaScript, run them in CI, and group `application.js` behaviors under a `window.RubyCritic` namespace (no behavior change). First step of the JS/CSS dependency update in [#567](https://github.com/whitesmith/rubycritic/issues/567) (by [@faisal][])
 * [CHORE] Stop shipping unused HTML report assets: Bootstrap 3 JavaScript (no plugin was in use), the unminified `jquery.tablesorter.js`, `prettify.css`, and `FontAwesome.otf` (by [@faisal][])
 * [BUGFIX] Make the HTML report's mobile menu button show and hide the sidebar. It had no click handler (by [@faisal][])
+* [CHANGE] Replace `jquery.scrollTo` in the HTML report with `Element#scrollIntoView` and CSS `scroll-margin-top` (by [@faisal][])
 
 # v5.0.0 / 2026-01-26 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...v5.0.0)
 
