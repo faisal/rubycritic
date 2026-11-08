@@ -38,6 +38,42 @@ describe('application.js', () => {
     });
   });
 
+  describe('without jQuery', () => {
+    // Loads the page with the jQuery script replaced by nothing.
+    const withoutJQuery = (options) => loadReport({ ...options, stubs: { 'jquery.min.js': () => {} } });
+
+    it('marks the sidebar item of the current page active', async () => {
+      const window = await withoutJQuery({ body: SIDEBAR, page: 'code_index.html' });
+
+      expect(window.jQuery).toBeUndefined();
+      expect(window.document.querySelector('.code-index-nav').classList.contains('active')).toBeTrue();
+    });
+
+    it('hides and shows the smells with the toggle buttons', async () => {
+      const window = await withoutJQuery({ body: CODE_FILE, page: 'lib/foo.html' });
+
+      window.document.getElementById('toggle-code').click();
+      expect(window.document.querySelector('.smells').style.display).toBe('none');
+
+      window.document.getElementById('toggle-smells').click();
+      expect(window.document.querySelector('.smells').style.display).not.toBe('none');
+    });
+
+    it('highlights the line of a smell location link', async () => {
+      const window = await withoutJQuery({
+        body: CODE_FILE,
+        page: 'lib/foo.html',
+        before: (w) => { w.Element.prototype.scrollIntoView = () => {}; },
+      });
+      const click = new window.MouseEvent('click', { bubbles: true, cancelable: true });
+
+      window.document.querySelector('a[href="foo.html#L2"]').dispatchEvent(click);
+
+      expect(window.document.getElementById('L2').classList.contains('highlight')).toBeTrue();
+      expect(click.defaultPrevented).toBeTrue();
+    });
+  });
+
   describe('sidebar navigation', () => {
     [
       ['overview.html', 'overview-nav'],

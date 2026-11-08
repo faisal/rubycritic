@@ -54,7 +54,8 @@ describe 'HTML report assets' do
     'vendor/javascripts/jquery.filtertable.min.js' => 'a small filter in application.js replaces it',
     'vendor/javascripts/jquery.tablesorter.min.js' => 'a small sorter in application.js replaces it',
     'vendor/javascripts/prettify.js' => 'Rouge highlights the code when the report is generated',
-    'vendor/javascripts/highcharts.src-4.0.1.js' => 'Chart.js (MIT) replaces it; Highcharts is commercial'
+    'vendor/javascripts/highcharts.src-4.0.1.js' => 'Chart.js (MIT) replaces it; Highcharts is commercial',
+    'vendor/javascripts/jquery.min.js' => 'application.js uses the DOM API directly'
   }.each do |script, reason|
     it "does not load #{script}, because #{reason}" do
       _(layout_scripts).wont_include script
