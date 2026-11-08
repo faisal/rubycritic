@@ -34,7 +34,7 @@ describe('application.js', () => {
       const window = await loadReport();
 
       expect(typeof window.RubyCritic).toBe('object');
-      ['init', 'activateSidebarNav', 'initCharts', 'initCodeView', 'initTables', 'initTimestamps'].forEach((name) => {
+      ['init', 'activateSidebarNav', 'initMenuToggle', 'initCharts', 'initCodeView', 'initTables', 'initTimestamps'].forEach((name) => {
         expect(typeof (window.RubyCritic || {})[name]).withContext(name).toBe('function');
       });
     });
@@ -53,6 +53,36 @@ describe('application.js', () => {
 
         expect(active.map((a) => a.className)).toEqual([`project-nav-item ${navClass} active`]);
       });
+    });
+  });
+
+  describe('mobile menu button', () => {
+    const LAYOUT = `
+      <header><a href="#menu-toggle" id="menu-toggle" aria-label="Toggle navigation menu">menu</a></header>
+      <div id="wrapper"><aside id="sidebar-wrapper"></aside></div>`;
+    let window;
+
+    beforeEach(async () => {
+      window = await loadReport({ body: LAYOUT, page: 'code_index.html' });
+    });
+
+    it('shows or hides the sidebar with each click', () => {
+      const wrapper = window.document.getElementById('wrapper');
+      const button = window.document.getElementById('menu-toggle');
+
+      button.click();
+      expect(wrapper.classList.contains('toggled')).toBeTrue();
+
+      button.click();
+      expect(wrapper.classList.contains('toggled')).toBeFalse();
+    });
+
+    // jsdom does not follow fragment links, so check that the click is cancelled.
+    it('does not follow the "#menu-toggle" link', () => {
+      const click = new window.MouseEvent('click', { bubbles: true, cancelable: true });
+      window.document.getElementById('menu-toggle').dispatchEvent(click);
+
+      expect(click.defaultPrevented).toBeTrue();
     });
   });
 
