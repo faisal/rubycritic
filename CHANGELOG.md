@@ -15,6 +15,7 @@
 * [FEATURE] `--maximum-decrease` / `maximum_decrease` now accepts float values (e.g. `0.5`), mirroring how `minimum_score` is handled (by [@siklodi-mariusz][])
 * [CHORE] Fix `Style/DirectiveScope` Rubocop offenses introduced by a new Rubocop release (by [@etagwerker][])
 * [CHANGE] Rename the `threshold_score` YAML key to `maximum_decrease` to match the `--maximum-decrease` CLI flag. The old `threshold_score` key still works but emits a deprecation warning; when both are present, `maximum_decrease` wins (by [@siklodi-mariusz][])
+* [CHORE] Add Jasmine + jsdom specs for the HTML report JavaScript, run them in CI, and group `application.js` behaviors under a `window.RubyCritic` namespace (no behavior change). First step of the JS/CSS dependency update in [#567](https://github.com/whitesmith/rubycritic/issues/567) (by [@faisal][])
 
 # v5.0.0 / 2026-01-26 [(commits)](https://github.com/whitesmith/rubycritic/compare/v4.12.0...v5.0.0)
 

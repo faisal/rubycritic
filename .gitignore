@@ -27,3 +27,6 @@ tmp
 .ruby-version
 .DS_Store
 .byebug_history
+
+# Node tooling for the HTML report JavaScript specs
+node_modules/

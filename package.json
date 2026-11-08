@@ -1,0 +1,16 @@
+{
+  "name": "rubycritic-html-report",
+  "private": true,
+  "description": "Development-only tooling for the RubyCritic HTML report JavaScript. Not part of the gem.",
+  "license": "MIT",
+  "scripts": {
+    "test": "jasmine --config=test/javascripts/support/jasmine.json"
+  },
+  "engines": {
+    "node": ">=22.22.2"
+  },
+  "devDependencies": {
+    "jasmine": "7.0.0",
+    "jsdom": "31.0.0"
+  }
+}
