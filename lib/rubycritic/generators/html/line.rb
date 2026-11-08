@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'cgi/escape'
 require 'rubycritic/generators/html/base'
 
 module RubyCritic
@@ -12,14 +11,17 @@ module RubyCritic
 
         attr_reader :file_directory
 
-        def initialize(file_directory, text, smells)
+        # html is one line of highlighted, already escaped code.
+        def initialize(file_directory, number, html, smells)
           @file_directory = file_directory
-          @text = CGI.escapeHTML(text.chomp)
+          @number = number
+          @html = html
           @smells = smells
         end
 
+        # The code block keeps white space, so the output has no newlines.
         def render
-          "#{template.result(binding).delete("\n")}\n"
+          template.result(binding).delete("\n")
         end
 
         private

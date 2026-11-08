@@ -1,6 +1,4 @@
-<%= @text %>
-
-<ol class="nocode errors smells">
+<li id="L<%= @number %>"><%= @html %><ol class="nocode errors smells">
 <% @smells.each do |smell| %>
   <li>
     <div class="description">
@@ -20,4 +18,4 @@
     </div>
   </li>
 <% end %>
-</ol>
+</ol></li>

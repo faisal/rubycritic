@@ -2,6 +2,7 @@
 
 require 'rubycritic/generators/html/base'
 require 'rubycritic/generators/html/line'
+require 'rubycritic/generators/html/syntax_highlighter'
 
 module RubyCritic
   module Generator
@@ -35,15 +36,18 @@ module RubyCritic
         end
 
         def render
-          file_code = []
-          File.readlines(@pathname).each.with_index(LINE_NUMBER_OFFSET) do |line_text, line_number|
-            location = Location.new(@pathname, line_number)
-            line_smells = @analysed_module.smells_at_location(location)
-            file_code << Line.new(file_directory, line_text, line_smells).render
-          end
-
-          file_body = TEMPLATE.result(base_binding { file_code.join })
+          file_body = TEMPLATE.result(base_binding { file_code })
           LAYOUT_TEMPLATE.result(base_binding { file_body })
+        end
+
+        private
+
+        # One <li id="L<n>"> per source line, with no white space between them.
+        def file_code
+          SyntaxHighlighter.lines(File.read(@pathname)).map.with_index(LINE_NUMBER_OFFSET) do |html, line_number|
+            line_smells = @analysed_module.smells_at_location(Location.new(@pathname, line_number))
+            Line.new(file_directory, line_number, html, line_smells).render
+          end.join
         end
       end
     end

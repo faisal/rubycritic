@@ -6,10 +6,9 @@ require 'rubycritic/generators/html_report'
 describe 'HTML report assets' do
   let(:assets_dir) { Pathname.new(RubyCritic::Generator::HtmlReport::ASSETS_DIR) }
   let(:templates_dir) { assets_dir.join('../templates') }
-  let(:layout_scripts) do
-    templates_dir.join('layouts/application.html.erb').read
-                 .scan(/<script src="<%= asset_path\("([^"]+)"\) %>">/).flatten
-  end
+  let(:layout) { templates_dir.join('layouts/application.html.erb').read }
+  let(:layout_scripts) { layout.scan(/<script src="<%= asset_path\("([^"]+)"\) %>">/).flatten }
+  let(:layout_stylesheets) { layout.scan(/<link href="<%= asset_path\("([^"]+)"\) %>"/).flatten }
 
   # Asset paths that the templates pass to asset_path, e.g. "images/logo.png".
   let(:template_references) do
@@ -48,10 +47,19 @@ describe 'HTML report assets' do
     'vendor/javascripts/jquery.scrollTo.min.js' => 'Element#scrollIntoView replaces it',
     'vendor/javascripts/jquery.timeago.js' => 'Intl.RelativeTimeFormat replaces it',
     'vendor/javascripts/jquery.filtertable.min.js' => 'a small filter in application.js replaces it',
-    'vendor/javascripts/jquery.tablesorter.min.js' => 'a small sorter in application.js replaces it'
+    'vendor/javascripts/jquery.tablesorter.min.js' => 'a small sorter in application.js replaces it',
+    'vendor/javascripts/prettify.js' => 'Rouge highlights the code when the report is generated'
   }.each do |script, reason|
     it "does not load #{script}, because #{reason}" do
       _(layout_scripts).wont_include script
+    end
+  end
+
+  {
+    'vendor/stylesheets/prettify.custom_theme.css' => 'application.css styles the Rouge token classes'
+  }.each do |stylesheet, reason|
+    it "does not load #{stylesheet}, because #{reason}" do
+      _(layout_stylesheets).wont_include stylesheet
     end
   end
 end

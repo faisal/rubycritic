@@ -8,18 +8,14 @@ const SIDEBAR = `
   <a class="project-nav-item smells-index-nav">Smells</a>
   <a class="project-nav-item coverage-index-nav">Coverage</a>`;
 
-// Same shape as code_file.html.erb + line/smelly_line templates produce.
+// Same shape as code_file.html.erb renders it: Rouge token spans, one <li id="L<n>">
+// per source line, and the smells inside the item of their line.
 const CODE_FILE = `
   <ul class="nav nav-pills">
     <li><a href="#" id="toggle-code">code</a></li>
     <li class="active"><a href="#" id="toggle-smells">1 smell</a></li>
   </ul>
-  <code class="prettyprint linenums lang-ruby file-code js-file-code">class Foo
-<ol class="nocode errors smells"><li><div class="description">Smell
-<a href="foo.html#L2" class="js-smell-location">0</a>
-<a href="bar.html#L2" class="js-smell-location">1</a></div></li></ol>  def bar; end
-end
-</code>`;
+  <code class="file-code js-file-code"><ol class="linenums"><li id="L1"><span class="k">class</span> <span class="nc">Foo</span><ol class="nocode errors smells"><li><div class="description">Smell <a href="foo.html#L2" class="js-smell-location">0</a> <a href="bar.html#L2" class="js-smell-location">1</a></div></li></ol></li><li id="L2">  <span class="k">def</span> <span class="nf">bar</span><span class="p">;</span> <span class="s2">"x"</span> <span class="c1"># note</span></li><li id="L3"><span class="k">end</span></li></ol></code>`;
 
 const OVERVIEW = `
   <div id="gpa-chart"></div>
@@ -95,10 +91,33 @@ describe('application.js', () => {
       window = await loadReport({ body: CODE_FILE, page: 'lib/foo.html' });
     });
 
-    it('gives each code line an id', () => {
+    it('keeps the line ids that the report generator wrote', () => {
       const ids = [...window.document.querySelectorAll('.js-file-code ol.linenums > li')].map((li) => li.id);
 
-      expect(ids).toEqual(['L0', 'L1', 'L2']);
+      expect(ids).toEqual(['L1', 'L2', 'L3']);
+    });
+
+    // Same colors as the old Prettify theme.
+    [
+      ['.k', 'keyword', 'rgb(0, 119, 170)'],
+      ['.nc', 'class name', 'rgb(153, 0, 85)'],
+      ['.s2', 'string', 'rgb(102, 153, 0)'],
+      ['.c1', 'comment', 'rgb(136, 0, 0)'],
+      ['.p', 'punctuation', 'rgb(102, 102, 0)'],
+      ['.nf', 'method name', 'rgb(0, 0, 0)'],
+    ].forEach(([selector, kind, color]) => {
+      it(`colors a ${kind} ${color}`, () => {
+        const span = window.document.querySelector(`.js-file-code ${selector}`);
+
+        expect(window.getComputedStyle(span).color).toBe(color);
+      });
+    });
+
+    // jsdom does not compute ::marker styles, so look for the rule itself.
+    it('shows the line numbers in gray', () => {
+      const style = [...window.document.querySelectorAll('style')].map((s) => s.textContent).join('\n');
+
+      expect(style).toMatch(/\.file-code ol\.linenums > li::marker\s*\{\s*color: #999;/);
     });
 
     it('hides the smells when "code" is clicked', () => {
@@ -153,7 +172,7 @@ describe('application.js', () => {
     });
 
     it('moves the highlight when another line is chosen', () => {
-      line('L0').classList.add('highlight');
+      line('L3').classList.add('highlight');
 
       clickLink('foo.html#L2');
 

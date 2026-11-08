@@ -19,6 +19,37 @@ body { overflow-x: hidden; }
 html { scroll-behavior: smooth; }
 .file-code ol.linenums > li { scroll-margin-top: 87px; }
 
+/* Code view. Rouge adds the token classes when the report is generated
+   (see SyntaxHighlighter). The colors are those of the old Prettify theme. */
+.file-code {
+  font-family: Consolas, Monaco, 'Andale Mono', monospace;
+  white-space: pre-wrap;
+  color: #000;
+}
+.file-code ol.linenums { padding-left: 60px; }
+.file-code ol.linenums > li::marker { color: #999; }
+.file-code .smells > li { color: #999; }
+li.highlight { background-color: #FFC; }
+
+/* keywords */
+.file-code .k, .file-code .kc, .file-code .kd, .file-code .kn,
+.file-code .kp, .file-code .kr, .file-code .kt, .file-code .kv { color: #07a; }
+/* strings */
+.file-code .s, .file-code .sa, .file-code .sb, .file-code .sc, .file-code .dl,
+.file-code .sd, .file-code .s2, .file-code .se, .file-code .sh, .file-code .si,
+.file-code .sx, .file-code .sr, .file-code .s1 { color: #690; }
+/* comments */
+.file-code .c, .file-code .ch, .file-code .cm, .file-code .cp,
+.file-code .cpf, .file-code .c1, .file-code .cs { color: #800; }
+/* class, module and constant names */
+.file-code .nc, .file-code .nn, .file-code .no { color: #905; }
+/* numbers, symbols and variables */
+.file-code .m, .file-code .mb, .file-code .mf, .file-code .mh, .file-code .mi,
+.file-code .il, .file-code .mo, .file-code .mx, .file-code .ss,
+.file-code .v, .file-code .vc, .file-code .vg, .file-code .vi, .file-code .vm { color: #a67f59; }
+/* punctuation and operators */
+.file-code .p, .file-code .o, .file-code .ow { color: #660; }
+
 header {
   max-height: 85px;
   background: #fff!important;
